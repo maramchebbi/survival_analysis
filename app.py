@@ -82,9 +82,41 @@ st.sidebar.write(f"**Dataset**: {metrics['dataset_size']} observations")
 st.sidebar.markdown("---")
 st.sidebar.info("**C-index > 0.7** = Excellent pouvoir prédictif")
 
-st.subheader("📝 Caractéristiques de l'Assuré")
+st.subheader("📝 Informations sur l'Assuré")
 
 feature_cols = metadata['feature_cols']
+
+feature_labels = {
+    'fin': '💰 Situation Financière (0=Mauvaise, 1=Bonne)',
+    'age': '🎂 Âge (en années)',
+    'race': '👤 Origine (0=Autre, 1=Noir)',
+    'wexp': '💼 Expérience Professionnelle (0=Non, 1=Oui)',
+    'mar': '💍 Situation Maritale (0=Célibataire, 1=Marié)',
+    'paro': '👮 Libération Conditionnelle (0=Non, 1=Oui)',
+    'prio': '📋 Nombre d\'Arrestations Antérieures',
+    'week': '📅 Semaines depuis la Libération',
+    'arrest': '🚨 Événement (0=Non, 1=Oui)'
+}
+
+feature_descriptions = {
+    'fin': 'Stabilité financière de l\'assuré',
+    'age': 'Âge de l\'assuré en années',
+    'race': 'Catégorie démographique',
+    'wexp': 'A une expérience de travail à temps plein',
+    'mar': 'Statut marital',
+    'paro': 'Libéré en conditionnelle',
+    'prio': 'Nombre de condamnations antérieures'
+}
+
+feature_ranges = {
+    'fin': (0, 1),
+    'age': (18, 100),
+    'race': (0, 1),
+    'wexp': (0, 1),
+    'mar': (0, 1),
+    'paro': (0, 1),
+    'prio': (0, 20)
+}
 
 n_cols = 3
 cols = st.columns(n_cols)
@@ -92,14 +124,28 @@ cols = st.columns(n_cols)
 inputs = {}
 for idx, feature in enumerate(feature_cols):
     with cols[idx % n_cols]:
-        inputs[feature] = st.number_input(
-            feature.replace('_', ' ').title(),
-            value=0.0,
-            step=0.1,
-            key=feature,
-            help=f"Entrez la valeur pour {feature}"
-        )
-
+        label = feature_labels.get(feature, feature.replace('_', ' ').title())
+        description = feature_descriptions.get(feature, f"Valeur pour {feature}")
+        min_val, max_val = feature_ranges.get(feature, (0, 100))
+        
+        if max_val == 1:
+            inputs[feature] = st.selectbox(
+                label,
+                options=[0, 1],
+                index=0,
+                key=feature,
+                help=description
+            )
+        else:
+            inputs[feature] = st.number_input(
+                label,
+                min_value=float(min_val),
+                max_value=float(max_val),
+                value=float(min_val + (max_val - min_val) // 2),
+                step=1.0 if feature in ['age', 'prio'] else 0.1,
+                key=feature,
+                help=description
+            )
 if st.button("🧬 Analyser le Risque", use_container_width=True):
     with st.spinner("Analyse en cours..."):
         features_list = [inputs.get(feat, 0) for feat in metadata['feature_cols']]
