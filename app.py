@@ -5,21 +5,17 @@ import tensorflow as tf
 from tensorflow import keras
 import pickle
 import matplotlib.pyplot as plt
-
-st.set_page_config(
-    page_title="Votre Titre",
-    page_icon="🔍",
-    layout="wide"
-)
-
-# Forcer le mode texte brut pour éviter regex bugs
 import os
-os.environ['STREAMLIT_MARKDOWN_AUTOLINK'] = 'false'
+
+# IMPORTANT : set_page_config DOIT être la PREMIÈRE commande Streamlit
 st.set_page_config(
     page_title="Survival Analysis - Maram Chebbi",
     page_icon="🧬",
     layout="wide"
 )
+
+# Forcer le mode texte brut pour éviter regex bugs
+os.environ['STREAMLIT_MARKDOWN_AUTOLINK'] = 'false'
 
 @st.cache_resource
 def load_models():
@@ -73,7 +69,7 @@ st.markdown("""
 
 st.title("🧬 Survival Analysis - DeepSurv")
 st.markdown("### Prédiction de Risque pour Tarification d'Assurance-Vie")
-st.markdown("**Développé par** : Maram Chebbi | ESPRIT & IRA Le Mans")
+st.write("Développé par : Maram Chebbi | ESPRIT & IRA Le Mans")
 st.markdown("---")
 
 if not models_loaded:
@@ -155,6 +151,7 @@ for idx, feature in enumerate(feature_cols):
                 key=feature,
                 help=description
             )
+
 if st.button("🧬 Analyser le Risque", use_container_width=True):
     with st.spinner("Analyse en cours..."):
         features_list = [inputs.get(feat, 0) for feat in metadata['feature_cols']]
@@ -274,7 +271,7 @@ if st.button("🧬 Analyser le Risque", use_container_width=True):
 st.markdown("---")
 
 with st.expander("📚 À propos du modèle DeepSurv"):
-    st.markdown("""
+    st.write(f"""
     ### Méthodologie
     
     **DeepSurv - Deep Learning for Survival Analysis**
@@ -295,13 +292,13 @@ with st.expander("📚 À propos du modèle DeepSurv"):
     - Segmentation de clientèle
     
     **Performance actuelle**
-    - C-index Test : {:.3f}
-    - Dataset : {} observations
-    - Features : {}
-    """.format(metrics['test_c_index'], metrics['dataset_size'], metrics['n_features']))
+    - C-index Test : {metrics['test_c_index']:.3f}
+    - Dataset : {metrics['dataset_size']} observations
+    - Features : {metrics['n_features']}
+    """)
 
 with st.expander("🔬 Exemples de Profils"):
-    st.markdown("""
+    st.write("""
     ### Profil 1 : Faible Risque
     - Jeune âge
     - Bonne santé
@@ -320,3 +317,5 @@ with st.expander("🔬 Exemples de Profils"):
     """)
 
 st.markdown("---")
+st.caption("Développé par Maram Chebbi - Data Science & Actuariat")
+st.text("Contact: chebbimaram0[at]gmail.com")
